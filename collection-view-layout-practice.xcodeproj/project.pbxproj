@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,6 +13,7 @@
 		D4FD8A0425CBAC030028220D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4FD8A0225CBAC030028220D /* Main.storyboard */; };
 		D4FD8A0625CBAC040028220D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4FD8A0525CBAC040028220D /* Assets.xcassets */; };
 		D4FD8A0925CBAC050028220D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4FD8A0725CBAC040028220D /* LaunchScreen.storyboard */; };
+		D4FD8A1325CBAD420028220D /* EasyPeasy in Frameworks */ = {isa = PBXBuildFile; productRef = D4FD8A1225CBAD420028220D /* EasyPeasy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4FD8A1325CBAD420028220D /* EasyPeasy in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +85,9 @@
 			dependencies = (
 			);
 			name = "collection-view-layout-practice";
+			packageProductDependencies = (
+				D4FD8A1225CBAD420028220D /* EasyPeasy */,
+			);
 			productName = "collection-view-layout-practice";
 			productReference = D4FD89F925CBAC030028220D /* collection-view-layout-practice.app */;
 			productType = "com.apple.product-type.application";
@@ -110,6 +115,9 @@
 				Base,
 			);
 			mainGroup = D4FD89F025CBAC030028220D;
+			packageReferences = (
+				D4FD8A1125CBAD420028220D /* XCRemoteSwiftPackageReference "EasyPeasy" */,
+			);
 			productRefGroup = D4FD89FA25CBAC030028220D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -287,6 +295,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 64T4PJ8WCZ;
 				INFOPLIST_FILE = "collection-view-layout-practice/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -305,6 +314,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 64T4PJ8WCZ;
 				INFOPLIST_FILE = "collection-view-layout-practice/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -339,6 +349,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D4FD8A1125CBAD420028220D /* XCRemoteSwiftPackageReference "EasyPeasy" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:nakiostudio/EasyPeasy.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D4FD8A1225CBAD420028220D /* EasyPeasy */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D4FD8A1125CBAD420028220D /* XCRemoteSwiftPackageReference "EasyPeasy" */;
+			productName = EasyPeasy;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D4FD89F125CBAC030028220D /* Project object */;
 }
