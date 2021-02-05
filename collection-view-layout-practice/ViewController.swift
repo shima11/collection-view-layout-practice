@@ -405,6 +405,7 @@ class MessageCollectionLayout3: UICollectionViewFlowLayout {
   }
 }
 
+// https://gist.github.com/jochenschoellig/04ffb26d38ae305fa81aeb711d043068
 final class MessageCollectionLayout4: UICollectionViewFlowLayout {
 
   private var topMostVisibleItem = Int.max
@@ -519,6 +520,11 @@ final class MessageCollectionLayout4: UICollectionViewFlowLayout {
     }
   }
 
+  override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+
+    return proposedContentOffset
+  }
+
   override func finalizeCollectionViewUpdates() {
 
     // Set final content offset with animation or not
@@ -543,4 +549,87 @@ final class MessageCollectionLayout4: UICollectionViewFlowLayout {
 
     }
   }
+}
+
+
+// https://gist.github.com/timdonnelly/a62114b0b712d42db0d8
+final class MessageCollectionLayout5: UICollectionViewLayout {
+
+  private var attributes: [[UICollectionViewLayoutAttributes]] = []
+
+  private var topmostIndexPathBeforeUpdates: IndexPath? = nil
+  private var originOfTopmostIndexPath: CGFloat = 0.0
+
+
+  // This is the important part: the collection view will always let the layout know about
+  // upcoming changes. You can use this method to take any notes about the current state
+  // of things.
+  override func prepare(forCollectionViewUpdates updateItems: [UICollectionViewUpdateItem]) {
+    super.prepare(forCollectionViewUpdates: updateItems)
+
+    guard let collectionView = collectionView else { fatalError() }
+
+    // Get the layout attributes of the item closest to the top of the collection view
+    let topmostLayoutAttributes = attributes
+      .flatMap { (section) -> [UICollectionViewLayoutAttributes] in
+        return section
+      }
+      .sorted(by: { (a, b) -> Bool in
+        return abs(a.center.y - collectionView.contentOffset.y) < abs(b.center.y - collectionView.contentOffset.y)
+      })
+      .first
+
+    // Run through the updateItems to see if the indexPath will change. This is not comprehensive,
+    // you'll need to handle all of the other potential actions.
+    var indexPath = topmostLayoutAttributes?.indexPath
+    for item in updateItems {
+      guard indexPath != nil else { break }
+      switch item.updateAction {
+      case .insert where item.indexPathAfterUpdate!.item <= indexPath!.item:
+        indexPath = IndexPath(item: indexPath!.item + 1, section: indexPath!.section)
+      default:
+        // Handle the rest of the cases here
+        break
+      }
+    }
+
+    // Remember the position
+    topmostIndexPathBeforeUpdates = indexPath
+    originOfTopmostIndexPath = topmostLayoutAttributes?.frame.origin.y ?? 0.0
+  }
+
+
+  override func prepare() {
+    super.prepare()
+    guard let collectionView = collectionView else { return }
+    var globalIndex = 0
+    attributes = (0..<collectionView.numberOfSections).map({ (section) -> [UICollectionViewLayoutAttributes] in
+      return (0..<collectionView.numberOfItems(inSection: section)).map({ (item) -> UICollectionViewLayoutAttributes in
+        let l = UICollectionViewLayoutAttributes(forCellWith: NSIndexPath(item: item, section: section) as IndexPath)
+        l.frame = CGRect(x: 0.0, y: CGFloat(globalIndex) * 60.0, width: collectionView.bounds.width, height: 44.0)
+        globalIndex += 1
+        return l
+      })
+    })
+  }
+
+  override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+    return attributes[indexPath.section][indexPath.item]
+  }
+
+  override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+    return attributes.flatMap({ (attributes) -> [UICollectionViewLayoutAttributes] in
+      return attributes
+    })
+  }
+
+  override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+    // If we have a cached topmost index path, use it.
+    if let topmost = topmostIndexPathBeforeUpdates {
+      let top = attributes[topmost.section][topmost.item].frame.origin.y
+      return CGPoint(x: proposedContentOffset.x, y: top)
+    }
+    return proposedContentOffset
+  }
+
 }
