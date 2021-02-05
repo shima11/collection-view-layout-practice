@@ -8,9 +8,9 @@
 import UIKit
 import EasyPeasy
 
-class ViewController: UIViewController, UICollectionViewDataSource {
+final class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDataSourcePrefetching {
 
-  let collectionView: UICollectionView = .init(frame: .zero, collectionViewLayout: MessageCollectionLayout3())
+  private let collectionView: UICollectionView = .init(frame: .zero, collectionViewLayout: MessageCollectionLayout4())
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -19,6 +19,9 @@ class ViewController: UIViewController, UICollectionViewDataSource {
 
     collectionView.backgroundColor = .white
     collectionView.dataSource = self
+    collectionView.delegate = self
+    collectionView.prefetchDataSource = self
+    collectionView.isPrefetchingEnabled = true
     collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
     collectionView.alwaysBounceVertical = true
 
@@ -81,6 +84,50 @@ class ViewController: UIViewController, UICollectionViewDataSource {
     cell.contentView.addSubview(label)
     label.easy.layout(Center())
     return cell
+  }
+
+  func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+
+  }
+
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+
+
+    func makeString() -> String {
+       [
+        "ccc",
+        "bbbbbbbbb",
+        "aaaaaaaa",
+        "aakkkkkkkkkkk",
+        "mmmmmmm",
+        "jjj",
+        "eee",
+        "sssssssss",
+        "nnnnnnnnnnnnnnnnnn",
+       ].randomElement()!
+    }
+
+    if scrollView.contentOffset.y < 0 {
+
+      self.collectionView.performBatchUpdates {
+        self.items.insert(makeString(), at: 0)
+        self.collectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
+      } completion: { (completion) in
+
+      }
+
+    }
+
+    if scrollView.contentOffset.y > scrollView.contentSize.height - scrollView.bounds.height {
+
+      self.collectionView.performBatchUpdates {
+        self.items.append(makeString())
+        self.collectionView.insertItems(at: [IndexPath(item: self.items.endIndex-1, section: 0)])
+      } completion: { (completion) in
+
+      }
+
+    }
   }
 
 }
@@ -273,6 +320,7 @@ class MessageCollectionLayout3: UICollectionViewFlowLayout {
       switch updateItem.updateAction {
       case .insert:
         if topMostVisibleItem + updateItems.count > updateItem.indexPathAfterUpdate!.item {
+
           if let newAttributes = self.layoutAttributesForItem(at: updateItem.indexPathAfterUpdate!) {
 
             offset += (newAttributes.size.height + self.minimumLineSpacing)
@@ -280,6 +328,7 @@ class MessageCollectionLayout3: UICollectionViewFlowLayout {
           }
 
         } else if bottomMostVisibleItem <= updateItem.indexPathAfterUpdate!.item {
+
           if let newAttributes = self.layoutAttributesForItem(at: updateItem.indexPathAfterUpdate!) {
 
             offset += (newAttributes.size.height + self.minimumLineSpacing)
@@ -352,6 +401,146 @@ class MessageCollectionLayout3: UICollectionViewFlowLayout {
 
       // Set new content offset with animation
       collectionView.setContentOffset(newContentOffset, animated: true)
+    }
+  }
+}
+
+final class MessageCollectionLayout4: UICollectionViewFlowLayout {
+
+  private var topMostVisibleItem = Int.max
+
+  private var offset: CGFloat = 0.0
+  private var visibleAttributes: [UICollectionViewLayoutAttributes]?
+
+  private var isInsertingItemsToTop = false
+
+  override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+
+    // Reset each time all values to recalculate them
+    // ════════════════════════════════════════════════════════════
+
+    // Get layout attributes of all items
+    visibleAttributes = super.layoutAttributesForElements(in: rect)
+
+    // Erase offset
+    offset = 0.0
+
+    // Reset inserting flags
+    isInsertingItemsToTop = false
+
+    return visibleAttributes
+  }
+
+  override func prepare(forCollectionViewUpdates updateItems: [UICollectionViewUpdateItem]) {
+
+    // Check where new items get inserted
+    // ════════════════════════════════════════════════════════════
+
+    // Get collection view and layout attributes as non-optional object
+    guard let collectionView = self.collectionView else { return }
+    guard let visibleAttributes = self.visibleAttributes else { return }
+
+
+    // Find top and bottom most visible item
+    // ────────────────────────────────────────────────────────────
+
+    topMostVisibleItem = Int.max
+
+    let container = CGRect(
+      x: collectionView.contentOffset.x,
+      y: collectionView.contentOffset.y,
+      width: collectionView.frame.size.width,
+      height: (collectionView.frame.size.height - (collectionView.contentInset.top + collectionView.contentInset.bottom))
+    )
+
+    for attributes in visibleAttributes {
+
+      // Check if cell frame is inside container frame
+      if attributes.frame.intersects(container) {
+        let item = attributes.indexPath.item
+        if item < topMostVisibleItem { topMostVisibleItem = item }
+      }
+    }
+
+
+    // Call super after first calculations
+    super.prepare(forCollectionViewUpdates: updateItems)
+
+
+    // Calculate offset of inserting items
+    // ────────────────────────────────────────────────────────────
+
+    var willInsertItemsToTop = false
+
+    // Iterate over all new items and add their height if they go inserted
+    for updateItem in updateItems {
+      switch updateItem.updateAction {
+      case .insert:
+        if topMostVisibleItem + updateItems.count > updateItem.indexPathAfterUpdate!.item {
+
+          if let newAttributes = layoutAttributesForItem(at: updateItem.indexPathAfterUpdate!) {
+
+            offset += (newAttributes.size.height + minimumLineSpacing)
+            willInsertItemsToTop = true
+          }
+
+        }
+
+      case.delete:
+        // TODO: Handle removal of items
+        break
+
+      default:
+        break
+      }
+    }
+
+
+    // Pass on information if items need more than one screen
+    // ────────────────────────────────────────────────────────────
+
+    // Just continue if one flag is set
+    if willInsertItemsToTop {
+
+      // Get heights without top and bottom
+      let collectionViewContentHeight = collectionView.contentSize.height
+      let collectionViewFrameHeight = collectionView.frame.size.height - (collectionView.contentInset.top + collectionView.contentInset.bottom)
+
+      // Continue only if the new content is higher then the frame
+      // If it is not the case the collection view can display all cells on one screen
+      if collectionViewContentHeight + offset > collectionViewFrameHeight {
+
+        if willInsertItemsToTop {
+          CATransaction.begin()
+          CATransaction.setDisableActions(true)
+          isInsertingItemsToTop = true
+        }
+      }
+    }
+  }
+
+  override func finalizeCollectionViewUpdates() {
+
+    // Set final content offset with animation or not
+    // ════════════════════════════════════════════════════════════
+
+    // Get collection view as non-optional object
+    guard let collectionView = self.collectionView else { return }
+
+    if isInsertingItemsToTop {
+
+      // Calculate new content offset
+      let newContentOffset = CGPoint(
+        x: collectionView.contentOffset.x,
+        y: collectionView.contentOffset.y + offset
+      )
+
+      // Set new content offset without animation
+      collectionView.contentOffset = newContentOffset
+
+      // Commit/end transaction
+      CATransaction.commit()
+
     }
   }
 }
