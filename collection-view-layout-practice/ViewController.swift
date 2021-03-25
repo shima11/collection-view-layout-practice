@@ -36,8 +36,26 @@ final class ViewController: UIViewController, UICollectionViewDataSource, UIColl
       let addButton = UIButton(type: .contactAdd, primaryAction: UIAction.init(handler: { (action) in
 
         self.collectionView.performBatchUpdates {
+          self.items.insert("aaaaa", at: 0)
+          self.items.insert("aaaaa", at: 0)
+          self.items.insert("aaaaa", at: 0)
           self.items.append("ggggg")
-          self.collectionView.insertItems(at: [IndexPath(item: self.items.endIndex-1, section: 0)])
+          self.items.append("ggggg")
+          self.items.append("ggggg")
+          self.items.append("ggggg")
+          self.items.append("ggggg")
+          self.items.append("ggggg")
+          self.collectionView.insertItems(at: [
+            IndexPath(item: 0, section: 0),
+            IndexPath(item: 1, section: 0),
+            IndexPath(item: 2, section: 0),
+            IndexPath(item: self.items.endIndex-1, section: 0),
+            IndexPath(item: self.items.endIndex-2, section: 0),
+            IndexPath(item: self.items.endIndex-3, section: 0),
+            IndexPath(item: self.items.endIndex-4, section: 0),
+            IndexPath(item: self.items.endIndex-5, section: 0),
+            IndexPath(item: self.items.endIndex-6, section: 0),
+          ])
         } completion: { (completion) in
 
         }
@@ -109,20 +127,35 @@ final class ViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     if scrollView.contentOffset.y < 0 {
 
-      self.collectionView.performBatchUpdates {
-        self.items.insert(makeString(), at: 0)
-        self.collectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
-      } completion: { (completion) in
-
-      }
+//      self.collectionView.performBatchUpdates {
+//        self.items.insert(makeString(), at: 0)
+//        self.collectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
+//      } completion: { (completion) in
+//
+//      }
 
     }
 
     if scrollView.contentOffset.y > scrollView.contentSize.height - scrollView.bounds.height {
 
       self.collectionView.performBatchUpdates {
-        self.items.append(makeString())
-        self.collectionView.insertItems(at: [IndexPath(item: self.items.endIndex-1, section: 0)])
+//        self.items.append(makeString())
+//        self.collectionView.insertItems(at: [IndexPath(item: self.items.endIndex-1, section: 0)])
+        self.items.append("ggggg")
+        self.items.append("ggggg")
+        self.items.append("ggggg")
+        self.items.append("ggggg")
+        self.items.append("ggggg")
+        self.items.append("ggggg")
+        self.collectionView.insertItems(at: [
+          IndexPath(item: self.items.endIndex-1, section: 0),
+          IndexPath(item: self.items.endIndex-2, section: 0),
+          IndexPath(item: self.items.endIndex-3, section: 0),
+          IndexPath(item: self.items.endIndex-4, section: 0),
+          IndexPath(item: self.items.endIndex-5, section: 0),
+          IndexPath(item: self.items.endIndex-6, section: 0),
+        ])
+
       } completion: { (completion) in
 
       }
@@ -473,11 +506,14 @@ final class MessageCollectionLayout4: UICollectionViewFlowLayout {
 
     var willInsertItemsToTop = false
 
+    print("xxx:=============")
     // Iterate over all new items and add their height if they go inserted
     for updateItem in updateItems {
       switch updateItem.updateAction {
       case .insert:
-        if topMostVisibleItem + updateItems.count > updateItem.indexPathAfterUpdate!.item {
+        print("xxx:", topMostVisibleItem, updateItems.count, updateItem.indexPathAfterUpdate!.item)
+//        if topMostVisibleItem + updateItems.count > updateItem.indexPathAfterUpdate!.item {
+        if topMostVisibleItem >= updateItem.indexPathAfterUpdate!.item {
 
           if let newAttributes = layoutAttributesForItem(at: updateItem.indexPathAfterUpdate!) {
 
